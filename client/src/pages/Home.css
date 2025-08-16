@@ -1,0 +1,34 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;      
+}
+
+.home-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.home-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.home-label {
+    font-size: 1rem;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.home-select {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+}
