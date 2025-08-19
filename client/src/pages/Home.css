@@ -11,8 +11,27 @@
     margin-bottom: 20px;
 }
 
-.home-subtitle {
+.home-hero {
+    width: 100%;
+    max-height: 280px;      /* control height */
+    overflow: hidden;
+    display: flex;
+    align-items: center;     /* center vertically */
+    justify-content: center; /* center horizontally */
+  }
+  
+  .home-hero img {
+    max-height: 280px; 
+    justify-content: center; 
+    
+    /* If centering vertically, the container needs a defined height, e.g., height: 100vh; */
+  }
+  
+
+.home-content {
     font-size: 1.2rem;
+    width: 400px;
+    text-align: center;
     color: #666;
     margin-bottom: 40px;
 }
