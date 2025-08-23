@@ -5,6 +5,7 @@ import './City.css'
 
 const CITY_LABELS = {
   'boston': 'Boston',
+  
 }
 
 export default function City() {
@@ -21,7 +22,7 @@ export default function City() {
     try {
       setLoading(true)
       setError(null)
-      const params = new URLSearchParams({ city: slug, limit: '10' })
+      const params = new URLSearchParams({ city: slug, limit: '20' })
       if (cursor) params.set('after', cursor)
       const res = await fetch(`${apiBase}?${params.toString()}`)
       if (!res.ok) throw new Error(`API ${res.status}`)
@@ -48,7 +49,7 @@ export default function City() {
     <main className="city">
       <header className="city-header">
         <h1>{cityLabel} Happy Hours</h1>
-        {/*<Link className="city-back" to="/">← Choose another city</Link>*/}
+        <Link className="city-back" to="/">← Choose another city</Link>
       </header>
 
       {error && <div role="alert" className="city-error">Error: {error}</div>}
