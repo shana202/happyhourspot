@@ -5,13 +5,14 @@ import City from './pages/city';
 import Login from './pages/login';
 import Register from './pages/register';
 import './global.css'
+import './app.css'
 
 function Header() {
   const { user, logout } = useAuth();
   return (
-    <header className="container" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem 0' }}>
+    <header className="container" >
       <Link to="/"><strong>Happy Hour Spot</strong></Link>
-      <nav style={{ display:'flex', gap:'1rem' }}>
+      <nav className="nav-links">
         {user ? (
           <>
             <span>{user.email}</span>
