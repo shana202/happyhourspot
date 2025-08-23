@@ -1,17 +1,44 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthProvider';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthProvider.jsx';
 import Home from './pages/home';
 import City from './pages/city';
 import Login from './pages/login';
+import Register from './pages/register';
+import './global.css'
+
+function Header() {
+  const { user, logout } = useAuth();
+  return (
+    <header className="container" style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1rem 0' }}>
+      <Link to="/"><strong>Happy Hour Spot</strong></Link>
+      <nav style={{ display:'flex', gap:'1rem' }}>
+        {user ? (
+          <>
+            <span>{user.email}</span>
+            <button onClick={logout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Log in</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+      </nav>
+    </header>
+  );
+}
+
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Header />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/city/:slug" element={<City />} />
           <Route path="/login/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const { connect } = require('./db/connect');
 const authRoute = require('./routes/auth');
-const favoritesRoute = require('./routes/favorites');
+
 const venuesRoute = require('./routes/venues');
 
 const app = express();
@@ -17,13 +17,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     credentials: true
   }));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoute);
-app.use('/api/favorites', favoritesRoute);
+
 app.use('/api/venues', venuesRoute);
 
 const port = process.env.PORT || 5002;

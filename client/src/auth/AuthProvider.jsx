@@ -7,10 +7,13 @@ export function AuthProvider({ children }) {
   const [ready, setReady] = useState(false);
 
   async function refresh() {
-    const res = await fetch('/api/auth/me', { credentials: 'include' });
-    const data = await res.json();
-    setUser(data.user);
-    setReady(true);
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      setUser(data.user);   // {email} or null
+    } finally {
+      setReady(true);
+    }
   }
 
   useEffect(() => { refresh(); }, []);
@@ -22,7 +25,7 @@ export function AuthProvider({ children }) {
       credentials: 'include',
       body: JSON.stringify({ email, password })
     });
-    if (!res.ok) throw new Error('Login failed');
+    if (!res.ok) throw new Error('login_failed');
     await refresh();
   }
 
@@ -33,7 +36,7 @@ export function AuthProvider({ children }) {
       credentials: 'include',
       body: JSON.stringify({ email, password })
     });
-    if (!res.ok) throw new Error('Register failed');
+    if (!res.ok) throw new Error('register_failed');
     await refresh();
   }
 
@@ -49,4 +52,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-export function useAuth() { return useContext(AuthCtx); }
+export function useAuth() {
+  return useContext(AuthCtx);
+}
+

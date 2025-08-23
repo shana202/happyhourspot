@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.jsx';
 
-export default function Login() {
-  const { login } = useAuth();
+export default function Register() {
+  const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
@@ -13,17 +13,18 @@ export default function Login() {
     e.preventDefault();
     setErr('');
     try {
-      await login(email, pw);
+      await register(email, pw);
       navigate('/');
-    } catch {
-      setErr('Invalid email or password');
+    } catch (e) {
+      setErr(e.message === 'register_failed'
+        ? 'Registration failed (email in use?)'
+        : 'Registration failed');
     }
   }
 
-
   return (
     <main className="container" style={{ maxWidth: 420, marginTop: '2rem' }}>
-      <h1>Log in</h1>
+      <h1>Create account</h1>
       {err && <p style={{ color:'crimson' }}>{err}</p>}
       <form onSubmit={onSubmit}>
         <label>Email<br />
@@ -34,9 +35,9 @@ export default function Login() {
           <input type="password" value={pw} onChange={e=>setPw(e.target.value)} required />
         </label>
         <br /><br />
-        <button type="submit">Log in</button>
+        <button type="submit">Register</button>
         <span style={{ marginLeft: 8 }}>
-          or <Link to="/register">Create an account</Link>
+          or <Link to="/login">Log in</Link>
         </span>
       </form>
     </main>
