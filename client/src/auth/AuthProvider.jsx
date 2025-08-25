@@ -18,23 +18,23 @@ export function AuthProvider({ children }) {
 
   useEffect(() => { refresh(); }, []);
 
-  async function login(email, password) {
+  async function login(name, email, password) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ name, email, password })
     });
     if (!res.ok) throw new Error('login_failed');
     await refresh();
   }
 
-  async function register(email, password) {
+  async function register(name, email, password) {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ name, email, password })
     });
     if (!res.ok) throw new Error('register_failed');
     await refresh();

@@ -6,16 +6,18 @@ import Login from './pages/login';
 import Register from './pages/register';
 import './global.css'
 import './app.css'
+import logo from './assets/images/logo.png';
 
 function Header() {
   const { user, logout } = useAuth();
   return (
     <header className="container" >
-      <Link to="/"><strong>Happy Hour Spot</strong></Link>
+      
       <nav className="nav-links">
+      <img src={logo} alt="Happy Hour Spot" />
         {user ? (
           <>
-            <span>{user.email}</span>
+            <span>{user.name || user.email}</span>
             <button onClick={logout}>Logout</button>
           </>
         ) : (

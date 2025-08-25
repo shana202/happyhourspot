@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthProvider.jsx';
 
 export default function Register() {
   const { register } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
@@ -13,7 +14,7 @@ export default function Register() {
     e.preventDefault();
     setErr('');
     try {
-      await register(email, pw);
+      await register(name, email, pw);
       navigate('/');
     } catch (e) {
       setErr(e.message === 'register_failed'
@@ -27,6 +28,11 @@ export default function Register() {
       <h1>Create account</h1>
       {err && <p style={{ color:'crimson' }}>{err}</p>}
       <form onSubmit={onSubmit}>
+        
+      <label>Name<br />
+          <input type="name" value={name} onChange={e=>setName(e.target.value)} required />
+        </label>
+        <br /><br />
         <label>Email<br />
           <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required />
         </label>

@@ -49,7 +49,7 @@ export default function City() {
     <main className="city">
       <header className="city-header">
         <h1>{cityLabel} Happy Hours</h1>
-        <Link className="city-back" to="/">← Choose another city</Link>
+        {/*<Link className="city-back" to="/">← Choose another city</Link>*/}
       </header>
 
       {error && <div role="alert" className="city-error">Error: {error}</div>}

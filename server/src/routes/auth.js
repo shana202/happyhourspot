@@ -13,8 +13,8 @@ function setJwtCookie(res, payload) {
 }
 
 router.post('/register', async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) return res.status(400).json({ error: 'email_password_required' });
+  const { name, email, password } = req.body || {};
+  if (!name || !email || !password) return res.status(400).json({ error: 'email_password_required' });
 
   const db = getDb();
   const users = db.collection('users');
@@ -23,10 +23,19 @@ router.post('/register', async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const now = new Date();
-  const { insertedId } = await users.insertOne({ email: email.toLowerCase(), passwordHash, favorites: [], createdAt: now, updatedAt: now });
+  const doc = {
+    name: name.trim(),
+    email: email.toLowerCase(),
+    passwordHash,
+    favorites: [],
+    createdAt: now,
+    updatedAt: now
+  };
 
-  setJwtCookie(res, { uid: insertedId.toString(), email: email.toLowerCase() });
-  res.json({ ok: true, user: { email: email.toLowerCase() } });
+  const { insertedId } = await users.insertOne(doc);
+
+  setJwtCookie(res, { uid: insertedId.toString(), email: doc.email, name: doc.name });
+  res.json({ ok: true, user: { uid: insertedId.toString(), email: doc.email, name: doc.name } });
 });
 
 router.post('/login', async (req, res) => {
@@ -41,8 +50,8 @@ router.post('/login', async (req, res) => {
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) return res.status(401).json({ error: 'invalid_credentials' });
 
-  setJwtCookie(res, { uid: user._id.toString(), email: user.email });
-  res.json({ ok: true, user: { email: user.email } });
+  setJwtCookie(res, { uid: user._id.toString(), email: user.email, name: user.name || null });
+  res.json({ ok: true, user: { uid: user._id.toString(), email: user.email, name: user.name || null } });
 });
 
 router.post('/logout', (req, res) => {
@@ -50,15 +59,29 @@ router.post('/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/me', (req, res) => {
-  const token = req.cookies[COOKIE];
-  if (!token) return res.json({ user: null });
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    return res.json({ user: { email: payload.email } });
-  } catch {
-    return res.json({ user: null });
-  }
-});
+router.get('/me', async (req, res) => {
+    const token = req.cookies[COOKIE];
+    if (!token) return res.json({ user: null });
+  
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET); // { uid, email, name? }
+      // Fetch fresh from DB in case name/email changed
+      const db = getDb();
+      const users = db.collection('users');
+      const user = await users.findOne({ _id: new ObjectId(payload.uid) });
+  
+      if (!user) return res.json({ user: null });
+  
+      return res.json({
+        user: {
+          uid: user._id.toString(),
+          email: user.email,
+          name: user.name || null
+        }
+      });
+    } catch {
+      return res.json({ user: null });
+    }
+  });
 
 module.exports = router;
