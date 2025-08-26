@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useEffect, useRef, useState, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import VenueCard from '../components/VenueCard'
 import './City.css'
 
@@ -12,36 +12,62 @@ export default function City() {
   const { slug } = useParams()
   const cityLabel = CITY_LABELS[slug] || slug
   const [venues, setVenues] = useState([])
-  const [next, setNext] = useState(null)     // cursor (last venue name)
+  const [next, setNext] = useState(null)     
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const apiBase = useMemo(() => '/api/venues', [])
+  const abortRef = useRef(null)
 
-  const fetchPage = async (cursor) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const params = new URLSearchParams({ city: slug, limit: '20' })
-      if (cursor) params.set('after', cursor)
-      const res = await fetch(`${apiBase}?${params.toString()}`)
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
-      setVenues(prev => [...prev, ...(data.items || [])])
-      setNext(data.next || null)
-    } catch (e) {
-      setError(e.message || 'Failed to load venues')
-    } finally {
-      setLoading(false)
+  const loadPage = async (cursor) => {
+    if (loading) return // guard against rapid re-clicks
+    setLoading(true)
+    setError(null)
+
+    if (abortRef.current) abortRef.current.abort()
+        const controller = new AbortController()
+        abortRef.current = controller
+    
+        try {
+          const params = new URLSearchParams({ city: slug })
+          if (cursor) params.set('after', cursor)
+    
+          const res = await fetch(`${apiBase}?${params.toString()}`, {
+            cache: 'no-store',
+            signal: controller.signal,
+            headers: { 'Accept': 'application/json' }
+          })
+          if (!res.ok) throw new Error(`API ${res.status}`)
+          const data = await res.json() // { items: [...], next: "cursor-or-null" }
+
+          setVenues(prev => {
+            const seen = new Set(prev.map(v => v._id || `${v.name}-${v.address}`))
+            const fresh = []
+            for (const v of data.items || []) {
+              const key = v._id || `${v.name}-${v.address}`
+              if (!seen.has(key)) {
+                seen.add(key)
+                fresh.push(v)
+              }
+            }
+            return [...prev, ...fresh]
+          })
+    
+          setNext(data.next || null)
+        } catch (e) {
+          if (e.name !== 'AbortError') setError(e.message || 'Failed to load venues')
+        } finally {
+          setLoading(false)
+        }
     }
-  }
 
   useEffect(() => {
-    // reset when slug changes
+    
     setVenues([])
     setNext(null)
     setError(null)
-    fetchPage(null)
+    loadPage(null)
+    return () => abortRef.current?.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug])
 
@@ -62,7 +88,7 @@ export default function City() {
         </div>
       </section>
 
-      <div className="city-actions">
+      {/* <div className="city-actions">
         {next && !loading && (
           <button className="city-loadmore" onClick={() => fetchPage(next)}>
             Load more
@@ -72,7 +98,7 @@ export default function City() {
         {!loading && venues.length === 0 && !error && (
           <p className="city-empty">No venues found.</p>
         )}
-      </div>
+      </div> */}
     </main>
   )
 }

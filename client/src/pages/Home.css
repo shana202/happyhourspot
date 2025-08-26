@@ -13,18 +13,17 @@
 
 .home-hero {
     width: 100%;
-    max-height: 280px;      /* control height */
+    max-height: 400px;      
     overflow: hidden;
     display: flex;
-    align-items: center;     /* center vertically */
-    justify-content: center; /* center horizontally */
+    align-items: center;     
+    justify-content: center; 
   }
   
   .home-hero img {
-    max-height: 280px; 
+    max-height: 400px; 
     justify-content: center; 
     
-    /* If centering vertically, the container needs a defined height, e.g., height: 100vh; */
   }
   
 

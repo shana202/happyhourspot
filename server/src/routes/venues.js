@@ -5,23 +5,29 @@ const { getDb } = require('../db/connect');
 // GET /api/venues?city=boston&limit=20&after=Acme%20Bar
 router.get('/', async (req, res) => {
   try {
-    const { city, limit = 20, after } = req.query;
+    const { city, limit, all } = req.query;
     if (!city) return res.status(400).json({ error: 'city required' });
 
     const venues = getDb().collection('venues');
 
     const query = { city };
-    const filter = after ? { ...query, name: { $gt: after } } : query;
+    
+    let cursor = venues
+    .find(query)
+    .sort({ name: 1 });
 
-    const items = await venues
-      .find(filter, { projection: { /* leave all fields */ } })
-      .sort({ name: 1 })              // alphabetical
-      .limit(Number(limit))
-      .toArray();
+    const maxLimit = 1000;
+    const n = Number(limit);
+    if (!all && n !== 0) {
+      const effective = Math.min(isNaN(n) ? 100 : n, maxLimit);
+      cursor = cursor.limit(effective);
+    }
 
-    const next = items.length ? items[items.length - 1].name : null;
 
-    res.json({ items, next });
+    const items = await cursor.toArray();
+
+    res.set('Cache-Control', 'no-store');
+    res.json({ items, next: null });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server_error' });
