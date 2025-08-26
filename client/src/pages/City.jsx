@@ -55,9 +55,11 @@ export default function City() {
       {error && <div role="alert" className="city-error">Error: {error}</div>}
 
       <section aria-live="polite" className="city-list">
+        <div className="venue-grid">
         {venues.map(v => (
           <VenueCard key={v._id || `${v.name}-${v.address}`} venue={v} />
         ))}
+        </div>
       </section>
 
       <div className="city-actions">

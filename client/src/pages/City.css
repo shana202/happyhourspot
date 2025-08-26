@@ -1,5 +1,5 @@
 .city {
-    max-width: 400px;
+    max-width: 900px;
     margin: 2rem auto;
     padding: 0 1rem;
   }
@@ -13,7 +13,7 @@
   }
   
   .city-header h1 {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
   
   .city-back {
@@ -34,8 +34,8 @@
   }
   
   .city-actions {
-    display: flex;
-    align-items: center;
+    
+    
     gap: 1rem;
     margin: 1rem 0 2rem;
   }
