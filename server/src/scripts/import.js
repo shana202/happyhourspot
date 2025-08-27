@@ -19,6 +19,9 @@ function normalizeCity(c) {
   if (['boston'].includes(v)) return v;
     if (v === 'boston') return 'boston';
   return v;
+  if (['albany'].includes(v)) return v;
+    if (v === 'albany') return 'albany';
+  return v;
 }
 
 function tidyPhone(p) {

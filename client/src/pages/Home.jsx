@@ -6,6 +6,7 @@ import headerImg from '../assets/images/header.png'
 
 const CITIES = [
     { label: 'Boston', slug: 'boston' },
+    { label: 'Albany', slug: 'albany' },
   ]
 export default function Home() {
   const navigate = useNavigate();
