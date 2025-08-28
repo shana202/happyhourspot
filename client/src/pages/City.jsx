@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import VenueCard from '../components/VenueCard'
 import './City.css'
 
@@ -76,7 +76,7 @@ export default function City() {
     <main className="city">
       <header className="city-header">
         <h1>{cityLabel} Happy Hours</h1>
-        {/*<Link className="city-back" to="/">← Choose another city</Link>*/}
+        <Link className="city-back" to="/">← Choose another city</Link>
       </header>
 
       {error && <div role="alert" className="city-error">Error: {error}</div>}
@@ -89,17 +89,6 @@ export default function City() {
         </div>
       </section>
 
-      {/* <div className="city-actions">
-        {next && !loading && (
-          <button className="city-loadmore" onClick={() => fetchPage(next)}>
-            Load more
-          </button>
-        )}
-        {loading && <span className="city-loading">Loading…</span>}
-        {!loading && venues.length === 0 && !error && (
-          <p className="city-empty">No venues found.</p>
-        )}
-      </div> */}
     </main>
   )
 }
