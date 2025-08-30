@@ -1,0 +1,66 @@
+# docker-compose.yml
+version: "3.9"
+
+networks:
+  app:
+    driver: bridge
+
+services:
+  api:
+    # Your Express/Node API (expects a Dockerfile in ./server)
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - ./server/.env
+    expose:
+      - "5000"
+    restart: unless-stopped
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  web:
+    # Your React app (expects a Dockerfile in ./client that serves static build on port 80)
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    env_file:
+      - ./client/.env
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  proxy:
+    image: nginx:1.25-alpine
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"    # only public port
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

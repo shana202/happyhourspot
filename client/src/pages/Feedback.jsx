@@ -45,6 +45,18 @@ export default function Feedback() {
     <main className="city">
       <header className="city-header">
         <h1>Send Feedback</h1>
+  
+        <content
+  className="feedback-page"
+  style={{
+    display: "flex",
+    justifyContent: "center", // horizontal
+
+    textAlign: "center",      // center text inside
+  }}
+>
+  Have an update or a new submission? Let us know.
+</content>
         <Link className="city-back" to="/">← Back to Home</Link>
       </header>
 
