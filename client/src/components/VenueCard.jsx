@@ -5,11 +5,29 @@ const imagePool = Object.values(
     import.meta.glob('../assets/*', { eager: true, import: 'default' })
   )
   
-  function pickImage(seed = '') {
-    if (imagePool.length === 0) return ''
-    let h = 0
-    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
-    return imagePool[h % imagePool.length]
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  
+  const _assigned = new Map();      // seed -> image src
+  let _queue = [];                  // remaining images in the current cycle
+  
+  function nextImage() {
+    if (imagePool.length === 0) return '';
+    if (_queue.length === 0) _queue = shuffle(imagePool); // start a fresh cycle
+    return _queue.pop();
+  }
+  
+  function pickUniqueImage(seed = '') {
+    if (!_assigned.has(seed)) {
+      _assigned.set(seed, nextImage());
+    }
+    return _assigned.get(seed);
   }
   
   export default function VenueCard({ venue }) {
@@ -21,7 +39,8 @@ const imagePool = Object.values(
       happyHour,
     } = venue
   
-    const imgSrc = pickImage(name || address || 'venue')
+    const seed = name || address || 'venue'
+    const imgSrc = pickUniqueImage(seed);
   
     return (
       <article className="venue-card">
