@@ -5,6 +5,7 @@ import City from './pages/city';
 import Login from './pages/login';
 import Register from './pages/register';
 import Favorites from './pages/Favorites.jsx';
+import Feedback from './pages/Feedback.jsx';
 import './global.css'
 import './app.css'
 import logo from './assets/images/logo.png';
@@ -15,17 +16,21 @@ function Header() {
     <header className="container" >
       
       <nav className="nav-links">
+      <Link to="/">  
       <img src={logo} alt="Happy Hour Spot" />
+      </Link>
         {user ? (
           <>
             <span>{user.name || user.email}</span>
             <Link to="/favorites">My Favorites</Link>
+            <Link to="/feedback">Feedback</Link>
             <button onClick={logout}>Logout</button>
           </>
         ) : (
           <>
             <Link to="/login">Log in</Link>
             <Link to="/register">Register</Link>
+            <Link to="/feedback">Feedback</Link>
           </>
         )}
       </nav>
@@ -43,6 +48,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/city/:slug" element={<City />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/login/" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

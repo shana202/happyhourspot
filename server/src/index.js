@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const { connect } = require('./db/connect');
 const authRoute = require('./routes/auth');
 const favoritesRouter = require('./routes/favorites');
+const feedbackRouter = require('./routes/feedback');
 const venuesRoute = require('./routes/venues');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoute);
 
 app.use('/api/venues', venuesRoute);
 app.use('/api/favorites', favoritesRouter);
+app.use('/api/feedback', feedbackRouter);
 
 const port = process.env.PORT || 5002;
 
