@@ -31,7 +31,12 @@ app.use('/api/feedback', feedbackRouter);
 
 const port = process.env.PORT || 5002;
 
-(async () => {
-    await connect(process.env.MONGODB_URI, process.env.DB_NAME);
-    app.listen(port, () => console.log(`API on http://localhost:${port}`));
-  })();
+// Start the HTTP server immediately so container healthchecks pass
+app.listen(port, () => console.log(`API on http://localhost:${port}`));
+
+// Connect to Mongo in the background; routes that use DB will throw until ready
+connect(process.env.MONGODB_URI, process.env.DB_NAME)
+  .then(() => console.log('MongoDB connected'))
+  .catch((e) => {
+    console.error('MongoDB connection failed:', e);
+  });
