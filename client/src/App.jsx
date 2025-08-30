@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider.jsx';
-import Home from './pages/home';
-import City from './pages/city';
-import Login from './pages/login';
-import Register from './pages/register';
+import Home from './pages/Home.jsx';
+import City from './pages/City.jsx';
+import Login from './pages/login.jsx';
+import Register from './pages/register.jsx';
 import Favorites from './pages/Favorites.jsx';
 import Feedback from './pages/Feedback.jsx';
 import './global.css'
-import './app.css'
+import './App.css'
 import logo from './assets/images/logo.png';
 
 function Header() {
