@@ -39,3 +39,45 @@
     font-size: 1rem;
   }
   
+  .venue-card-actions {
+    margin-top: 0.75rem;
+  }
+  
+  .like-btn {
+    appearance: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+    background: #fafafa;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .like-btn:hover:not(:disabled) {
+    background: #f3f3f3;
+  }
+  .like-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .like-btn.liked {
+    color: #d12a63;
+    border-color: #f2b1c8;
+    background: #fff4f8;
+  }
+  
+  .tooltip-container { position: relative; display: inline-block; }
+  .tooltip {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    transform: translateY(6px);
+    background: #111;
+    color: #fff;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1;
+  }
+  

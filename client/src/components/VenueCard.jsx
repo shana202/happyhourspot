@@ -1,5 +1,6 @@
 import './VenueCard.css'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../auth/AuthProvider';
 
 const imagePool = Object.values(
     import.meta.glob('../assets/*', { eager: true, import: 'default' })
@@ -31,6 +32,13 @@ const imagePool = Object.values(
   }
   
   export default function VenueCard({ venue }) {
+    const { user, favorites, like, unlike } = useAuth() || {};
+    const [showTip, setShowTip] = useState(false);
+    useEffect(() => {
+      let t;
+      if (showTip) t = setTimeout(() => setShowTip(false), 2000);
+      return () => clearTimeout(t);
+    }, [showTip]);
     const {
       name,
       website,
@@ -38,9 +46,21 @@ const imagePool = Object.values(
       address,
       happyHour,
     } = venue
-  
+
     const seed = name || address || 'venue'
     const imgSrc = pickUniqueImage(seed);
+    const id = venue._id;
+    const isLiked = !!id && Array.isArray(favorites) && favorites.includes(id);
+
+    const handleToggleLike = async () => {
+      if (!id) return;
+      if (!user) { setShowTip(true); return; }
+      if (isLiked) {
+        await unlike(id);
+      } else {
+        await like(id);
+      }
+    };
   
     return (
       <article className="venue-card">
@@ -74,6 +94,23 @@ const imagePool = Object.values(
               <strong>Happy Hour:</strong> {happyHour}
             </p>
           )}
+
+          <div className="venue-card-actions tooltip-container">
+            <button
+              type="button"
+              className={`like-btn${isLiked ? ' liked' : ''}`}
+              aria-pressed={isLiked}
+              aria-label={isLiked ? 'Unlike' : 'Like'}
+              title={user ? (isLiked ? 'Unlike' : 'Like') : 'Login to like'}
+              onClick={handleToggleLike}
+              disabled={!id}
+            >
+              {isLiked ? '♥ Liked' : '♡ Like'}
+            </button>
+            {!user && showTip && (
+              <span role="tooltip" className="tooltip">Log in to like venues</span>
+            )}
+          </div>
         </div>
       </article>
     )
