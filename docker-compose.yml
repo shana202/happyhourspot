@@ -30,8 +30,7 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    env_file:
-      - ./client/.env
+   
     expose:
       - "80"
     restart: unless-stopped
