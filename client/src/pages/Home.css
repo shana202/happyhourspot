@@ -1,52 +1,62 @@
 .home {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;      
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .home-title {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 20px;
+  font-size: clamp(1.6rem, 2.5vw + 1rem, 2.5rem);
+  color: #333;
+  text-align: center;
 }
 
 .home-hero {
-    width: 100%;
-    max-height: 400px;      
-    overflow: hidden;
-    display: flex;
-    align-items: center;     
-    justify-content: center; 
-  }
-  
-  .home-hero img {
-    max-height: 400px; 
-    justify-content: center; 
-    
-  }
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-hero img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
   
 
 .home-content {
-    font-size: 1.2rem;
-    width: 400px;
-    text-align: center;
-    color: #666;
-    margin-bottom: 40px;
+  font-size: clamp(1rem, 0.8rem + 0.6vw, 1.15rem);
+  max-width: 65ch;
+  width: 100%;
+  text-align: center;
+  color: #555;
 }
 
 .home-label {
-    font-size: 1rem;
-    color: #999;
-    margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #777;
 }
 
 .home-select {
-    width: 200px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    color: #ffffff;
-    cursor: pointer;
+  width: min(100%, 360px);
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #222;
+  background: #fff;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .home { padding: 32px; gap: 20px; }
+  .home-content { margin-top: 4px; }
 }
