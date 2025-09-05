@@ -1,0 +1,79 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "ops/**"
+      - "docker-compose.yml"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: {}   # allow manual runs
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://${{ secrets.EC2_HOST }}   # shows a link in Actions UI
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout (for potential file reads)
+        uses: actions/checkout@v4
+
+      - name: Add EC2 host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Verify SSH connectivity
+        run: |
+          ssh -o StrictHostKeyChecking=yes ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo Connected to $(hostname)"
+
+      # --- Deploy by building/pulling on EC2 ---
+      - name: Deploy (git pull + compose up)
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            set -euo pipefail
+
+            # go to your app directory (adjust if different)
+            cd ~/happyhourspot
+
+            echo "[1/5] Git pull..."
+            git fetch --all --prune
+            git reset --hard origin/main
+
+            echo "[2/5] Ensure .env present (warn if missing)"
+            test -f .env && echo ".env found" || echo "::warning title=.env missing::.env not found on server (create one!)"
+
+            echo "[3/5] Build fresh images"
+            docker compose build --pull --no-cache
+
+            echo "[4/5] Start/Update stack"
+            docker compose up -d
+
+            echo "[5/5] Prune old images"
+            docker image prune -f
+
+            echo " ---- Status ---- "
+            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+          '
+
+      # --- Basic health check at the end (optional but handy) ---
+      - name: Smoke test (HTTP 200 on root)
+        run: |
+          # give containers a moment to pass healthchecks
+          sleep 10
+          # if you have DNS, replace with domain
+          curl -sSfL http://${{ secrets.EC2_HOST }}/ >/dev/null

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ---- Client (React) ----
+      - name: Install client deps
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build client
+        working-directory: ./client
+        run: npm run build
+
+      # ---- Server (Node/Express) ----
+      - name: Install server deps (prod)
+        working-directory: ./server
+        run: npm ci --omit=dev
+
+      - name: Lint server (optional)
+        if: ${{ hashFiles('server/.eslintrc*') != '' }}
+        working-directory: ./server
+        run: npm run lint --if-present
+
+      # ---- Docker sanity (build Compose locally) ----
+      - name: Docker metadata
+        run: docker --version
+
+      - name: Compose build (no cache)
+        run: docker compose build --no-cache
