@@ -25,51 +25,74 @@ jobs:
       EC2_HOST: ${{ secrets.EC2_HOST }}
       EC2_USER: ${{ secrets.EC2_USER }}
      
-    steps:
-      - name: Add EC2 host to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+   steps:
+  - name: Add EC2 host to known_hosts
+    run: |
+      mkdir -p ~/.ssh
+      ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-      - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+  - name: Start ssh-agent and add key
+    uses: webfactory/ssh-agent@v0.9.0
+    with:
+      ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Verify SSH connectivity
-        run: |
-          ssh -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" "echo Connected to $(hostname)"
+  - name: Verify SSH connectivity (verbose)
+    run: |
+      ssh -vvv -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" "echo Connected to $(hostname)"
 
-      - name: Deploy (git pull + compose up)
-        run: |
-          ssh "$EC2_USER@$EC2_HOST" '
-            set -euo pipefail
+  - name: Deploy (git pull + compose up) with debug
+    run: |
+      ssh "$EC2_USER@$EC2_HOST" '
+        set -euxo pipefail
 
-            # go to your app directory (adjust if different)
-            cd ~/happyhourspot
+        # Sanity: show OS, user, docker/compose availability
+        echo "== Host info =="; uname -a; whoami
+        echo "== Docker versions =="; docker --version || true; docker compose version || true
+        id -nG || true
 
-            echo "[1/5] Git pull..."
-            git fetch --all --prune
-            git reset --hard origin/main
+        # Ensure app dir exists; if repo missing, CLONE IT (adjust URL!)
+        APP_DIR="$HOME/happyhourspot"
+        REPO_URL="git@github.com:<your-user-or-org>/<your-repo>.git"
+        mkdir -p "$APP_DIR"
+        cd "$APP_DIR"
 
-            echo "[2/5] Ensure .env present (warn if missing)"
-            test -f .env && echo ".env found" || echo "::warning title=.env missing::.env not found on server (create one!)"
+        if [ ! -d .git ]; then
+          echo "Repo missing here; cloning..."
+          git clone "$REPO_URL" "$APP_DIR"
+        fi
 
-            echo "[3/5] Build fresh images"
-            docker compose build --pull --no-cache
+        echo "[1/6] Git fetch/reset"
+        git remote -v
+        git fetch --all --prune
+        git reset --hard origin/main
 
-            echo "[4/5] Start/Update stack"
-            docker compose up -d
+        echo "[2/6] Check .env"
+        test -f .env && echo ".env found" || { echo "::warning title=.env missing::.env not found next to docker-compose.yml"; }
 
-            echo "[5/5] Prune old images"
-            docker image prune -f
+        echo "[3/6] Verify docker/compose"
+        docker --version
+        docker compose version
 
-            echo " ---- Status ---- "
-            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
-          '
+        echo "[4/6] Build fresh images"
+        docker compose build --pull --no-cache
 
-      - name: Smoke test (HTTP 200 on root)
-        run: |
-          # give containers a moment to pass healthchecks
-          sleep 10
-          curl -sSfL "http://$EC2_HOST/" >/dev/null
+        echo "[5/6] Start/Update stack"
+        docker compose up -d
+
+        echo "[6/6] Status & logs (tail if unhealthy)"
+        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+        # If any container is (unhealthy), dump last 100 lines
+        UNHEALTHY=$(docker ps --filter "health=unhealthy" --format "{{.Names}}" || true)
+        if [ -n "$UNHEALTHY" ]; then
+          for n in $UNHEALTHY; do
+            echo "---- logs: $n ----"
+            docker logs --tail=100 "$n" || true
+          done
+          exit 1
+        fi
+      '
+
+  - name: Smoke test (HTTP 200 on root)
+    run: |
+      sleep 10
+      curl -v -sSfL "http://$EC2_HOST/" >/dev/null
