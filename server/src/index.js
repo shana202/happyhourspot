@@ -31,9 +31,10 @@ app.use('/api/favorites', favoritesRouter);
 app.use('/api/feedback', feedbackRouter);
 
 const port = process.env.PORT || 5002;
+const host = process.env.HOST || '0.0.0.0';
 
 // Start the HTTP server immediately so container healthchecks pass
-app.listen(port, () => console.log(`API on http://localhost:${port}`));
+app.listen(port, host, () => console.log(`API on http://${host}:${port}`));
 
 // Connect to Mongo in the background; routes that use DB will throw until ready
 connect(process.env.MONGODB_URI, process.env.DB_NAME)
