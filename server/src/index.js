@@ -23,6 +23,7 @@ app.use(cors({
   }));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoute);
 
 app.use('/api/venues', venuesRoute);

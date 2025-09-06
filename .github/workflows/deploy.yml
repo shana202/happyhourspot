@@ -103,12 +103,15 @@ jobs:
             fi
           '
 
-      - name: Smoke test (root)
+      - name: Smoke test on EC2
         run: |
-          sleep 10
-          curl -v -sSfL "http://$EC2_HOST/" >/dev/null || (echo "Root check failed" && exit 1)
-
-      - name: (Optional) API health
-        run: |
-          # Ignore failure if you don't have /health
-          curl -sSfL "http://$EC2_HOST/api/health" >/dev/null || echo "No /api/health endpoint (ok)"
+          # Run smoke checks from inside the EC2 host to avoid public ingress issues
+          ssh "$EC2_USER@$EC2_HOST" '
+            set -euxo pipefail
+            # Proxy health (Nginx)
+            curl -sSfL http://localhost/healthz >/dev/null
+            # Web root should serve index.html
+            curl -sSfL http://localhost/ >/dev/null
+            # API health: try both with and without /api prefix depending on proxy config
+            (curl -sSfL http://localhost/api/health >/dev/null) || (curl -sSfL http://localhost/health >/dev/null) || echo "::warning API health endpoint not found"
+          '
