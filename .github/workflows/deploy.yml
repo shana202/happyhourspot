@@ -80,14 +80,24 @@ jobs:
             docker --version
             docker compose version
 
-            # Warn if .env missing (lives on EC2 next to compose)
+            # Warn if top-level .env missing (optional)
             test -f .env && echo ".env found" || echo "::warning title=.env missing::.env not found next to docker-compose.yml"
+            # Require server/.env for API env_file (fail fast with clear message)
+            if [ ! -f server/.env ]; then
+              echo "::error title=server/.env missing::server/.env not found on EC2, required by docker-compose env_file"
+              exit 1
+            fi
 
             echo "[1/3] Build images"
             docker compose build --pull --no-cache
 
             echo "[2/3] Up stack"
-            docker compose up -d
+            if ! docker compose up -d; then
+              echo "Compose up failed; showing service statuses and logs"
+              docker compose ps || true
+              docker compose logs --no-color --tail=200 || true
+              exit 1
+            fi
 
             echo "[3/3] Status"
             docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
