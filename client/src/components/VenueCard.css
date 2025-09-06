@@ -51,6 +51,7 @@
     background: #5595ba;
     cursor: pointer;
     font-size: 0.95rem;
+    color: white;
   }
   .like-btn:hover:not(:disabled) {
     background: #f3f3f3;
