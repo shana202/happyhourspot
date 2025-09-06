@@ -1,22 +1,22 @@
 .venue-card {
-    width: 400px;               /* fixed container width */
-    background: #fff;
-    border-radius: 10px;
-    padding: 1rem;
-    margin: 0 0 1rem 0;
-    box-shadow: 0 2px 8px rgba(245, 110, 1, 0.08);
-   
-  }
+  width: 100%;                  /* responsive width */
+  max-width: 560px;             /* cap on large screens */
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 0 0 1rem 0;
+  box-shadow: 0 2px 8px rgba(245, 110, 1, 0.08);
+}
   
-  .venue-card-img {
-    width: 350px;
-    height: auto;
-    object-fit: cover;
-    border-radius: 6px;
-    flex-shrink: 0;
-    background: #eee;
-    margin-bottom: 20px;
-  }
+.venue-card-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #eee;
+  margin-bottom: 20px;
+}
   
  
   
