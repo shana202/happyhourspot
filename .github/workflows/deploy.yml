@@ -33,8 +33,16 @@ jobs:
 
       - name: Add EC2 host to known_hosts
         run: |
+          set -euo pipefail
+          if [ -z "${EC2_HOST:-}" ]; then
+            echo "::error title=EC2_HOST missing::Set EC2_HOST in repo/environment secrets"
+            exit 1
+          fi
           mkdir -p ~/.ssh
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+          # Try to scan host key (may fail if SG blocks port 22 from GitHub runners)
+          if ! ssh-keyscan -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+            echo "::warning title=ssh-keyscan failed::Could not reach $EC2_HOST:22; will accept-new on first SSH connect"
+          fi
 
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
@@ -43,7 +51,7 @@ jobs:
 
       - name: Ensure rsync is installed on EC2
         run: |
-          ssh -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" '
+          ssh -o StrictHostKeyChecking=accept-new "$EC2_USER@$EC2_HOST" '
             set -euxo pipefail
             if ! command -v rsync >/dev/null 2>&1; then
               (sudo yum -y install rsync) || (sudo apt-get update -y && sudo apt-get install -y rsync)
@@ -53,6 +61,7 @@ jobs:
       - name: Upload code to EC2 (rsync)
         run: |
           rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=accept-new" \
             --exclude ".git" \
             --exclude "node_modules" \
             --exclude ".env" \
@@ -60,7 +69,7 @@ jobs:
 
       - name: Build & start on EC2
         run: |
-          ssh "$EC2_USER@$EC2_HOST" '
+          ssh -o StrictHostKeyChecking=accept-new "$EC2_USER@$EC2_HOST" '
             set -euxo pipefail
             cd ~/"$REMOTE_DIR"
 
