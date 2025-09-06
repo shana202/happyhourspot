@@ -69,7 +69,7 @@ jobs:
 
       - name: Build & start on EC2
         run: |
-          ssh -o StrictHostKeyChecking=accept-new "$EC2_USER@$EC2_HOST" '
+          ssh -o StrictHostKeyChecking=accept-new "$EC2_USER@$EC2_HOST" "REMOTE_DIR='$REMOTE_DIR';"'
             set -euxo pipefail
             cd ~/"$REMOTE_DIR"
 
