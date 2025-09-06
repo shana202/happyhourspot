@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title>Starburst Martini</title>
+  <desc>1950s-style martini glass with starbursts</desc>
+  <style>
+    :root { color: #121212; }
+    @media (prefers-color-scheme: dark) { :root { color: #f2f2f2; } }
+    .stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .fill   { fill: currentColor; }
+  </style>
+
+  <!-- Martini glass -->
+  <path class="stroke" d="M16 12h32L32 32 16 12Z" />
+  <path class="stroke" d="M32 32v18" />
+  <path class="stroke" d="M23 54h18" />
+
+  <!-- Cocktail pick + olive -->
+  <path class="stroke" d="M20 18l24 10" />
+  <circle class="fill" cx="38" cy="25" r="2.5" />
+
+  <!-- Liquid hint -->
+  <path class="stroke" d="M20 18h24" opacity="0.5"/>
+
+  <!-- Starburst top-left -->
+  <g class="stroke">
+    <path d="M10 10h6M13 7v6M11 8.5l4 4M15 8.5l-4 4" />
+  </g>
+
+  <!-- Starburst top-right -->
+  <g class="stroke">
+    <path d="M48 6h5M50.5 3.5v5M49 5l3 3M52 5l-3 3" />
+  </g>
+
+  <!-- Starburst bottom-right -->
+  <g class="stroke">
+    <path d="M54 46h6M57 43v6M55 44.5l4 4M59 44.5l-4 4" />
+  </g>
+</svg>
