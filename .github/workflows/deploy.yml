@@ -20,13 +20,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     env:
       EC2_HOST: ${{ secrets.EC2_HOST }}
       EC2_USER: ${{ secrets.EC2_USER }}
+      REMOTE_DIR: happyhourspot   # ~/happyhourspot on the instance
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
@@ -37,39 +41,74 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Verify SSH connectivity (verbose)
+      - name: Ensure rsync is installed on EC2
         run: |
-          ssh -vvv -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" "echo Connected to $(hostname)"
-
-      # Deploy by building/pulling on EC2
-      - name: Deploy (git pull + compose up)
-        run: |
-          ssh "$EC2_USER@$EC2_HOST" '
-            set -euo pipefail
-
-            cd ~/happyhourspot
-
-            echo "[1/5] Git pull..."
-            git fetch --all --prune
-            git reset --hard origin/main
-
-            echo "[2/5] Ensure .env present (warn if missing)"
-            test -f .env && echo ".env found" || echo "::warning title=.env missing::.env not found on server (create one!)"
-
-            echo "[3/5] Build fresh images"
-            docker compose build --pull --no-cache
-
-            echo "[4/5] Start/Update stack"
-            docker compose up -d
-
-            echo "[5/5] Prune old images"
-            docker image prune -f
-
-            echo " ---- Status ---- "
-            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+          ssh -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" '
+            set -euxo pipefail
+            if ! command -v rsync >/dev/null 2>&1; then
+              (sudo yum -y install rsync) || (sudo apt-get update -y && sudo apt-get install -y rsync)
+            fi
           '
 
-      - name: Smoke test (HTTP 200 on root)
+      - name: Upload code to EC2 (rsync)
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude "node_modules" \
+            --exclude ".env" \
+            ./ "$EC2_USER@$EC2_HOST:~/$REMOTE_DIR/"
+
+      - name: Build & start on EC2
+        run: |
+          ssh "$EC2_USER@$EC2_HOST" '
+            set -euxo pipefail
+            cd ~/"$REMOTE_DIR"
+
+            echo "== Host info =="; uname -a; whoami; id -nG || true
+
+            # Ensure Docker & Compose exist
+            if ! command -v docker >/dev/null 2>&1; then
+              curl -fsSL https://get.docker.com | sh
+              sudo usermod -aG docker "$USER" || true
+            fi
+            if ! docker compose version >/dev/null 2>&1; then
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -SL https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-x86_64 \
+                -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+            docker --version
+            docker compose version
+
+            # Warn if .env missing (lives on EC2 next to compose)
+            test -f .env && echo ".env found" || echo "::warning title=.env missing::.env not found next to docker-compose.yml"
+
+            echo "[1/3] Build images"
+            docker compose build --pull --no-cache
+
+            echo "[2/3] Up stack"
+            docker compose up -d
+
+            echo "[3/3] Status"
+            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+
+            # If any container is unhealthy, show logs and fail
+            UNHEALTHY=$(docker ps --filter "health=unhealthy" --format "{{.Names}}" || true)
+            if [ -n "$UNHEALTHY" ]; then
+              for n in $UNHEALTHY; do
+                echo "---- logs: $n ----"
+                docker logs --tail=200 "$n" || true
+              done
+              exit 1
+            fi
+          '
+
+      - name: Smoke test (root)
         run: |
           sleep 10
-          curl -sSfL "http://$EC2_HOST/" >/dev/null
+          curl -v -sSfL "http://$EC2_HOST/" >/dev/null || (echo "Root check failed" && exit 1)
+
+      - name: (Optional) API health
+        run: |
+          # Ignore failure if you don't have /health
+          curl -sSfL "http://$EC2_HOST/api/health" >/dev/null || echo "No /api/health endpoint (ok)"
