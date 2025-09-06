@@ -9,7 +9,7 @@ on:
       - "ops/**"
       - "docker-compose.yml"
       - ".github/workflows/deploy.yml"
-  workflow_dispatch: {}   # allow manual runs
+  workflow_dispatch: 
 
 concurrency:
   group: production-deploy
@@ -18,19 +18,18 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: http://${{ secrets.EC2_HOST }}   # shows a link in Actions UI
+    environment: production
     timeout-minutes: 20
 
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+     
     steps:
-      - name: Checkout (for potential file reads)
-        uses: actions/checkout@v4
-
       - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
@@ -39,12 +38,11 @@ jobs:
 
       - name: Verify SSH connectivity
         run: |
-          ssh -o StrictHostKeyChecking=yes ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo Connected to $(hostname)"
+          ssh -o StrictHostKeyChecking=yes "$EC2_USER@$EC2_HOST" "echo Connected to $(hostname)"
 
-      # --- Deploy by building/pulling on EC2 ---
       - name: Deploy (git pull + compose up)
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+          ssh "$EC2_USER@$EC2_HOST" '
             set -euo pipefail
 
             # go to your app directory (adjust if different)
@@ -70,10 +68,8 @@ jobs:
             docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
           '
 
-      # --- Basic health check at the end (optional but handy) ---
       - name: Smoke test (HTTP 200 on root)
         run: |
           # give containers a moment to pass healthchecks
           sleep 10
-          # if you have DNS, replace with domain
-          curl -sSfL http://${{ secrets.EC2_HOST }}/ >/dev/null
+          curl -sSfL "http://$EC2_HOST/" >/dev/null
