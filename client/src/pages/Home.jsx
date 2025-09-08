@@ -8,6 +8,7 @@ const CITIES = [
     { label: 'Boston', slug: 'boston' },
     { label: 'Albany', slug: 'albany' },
     { label: 'Champaign-Urbana-Savoy', slug: 'champaign-urbana-savoy' },
+    { label: 'Pittsburgh', slug: 'pittsburgh' },
   ]
 export default function Home() {
   const navigate = useNavigate();
