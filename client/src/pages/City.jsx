@@ -6,6 +6,7 @@ import './City.css'
 const CITY_LABELS = {
   'boston': 'Boston',
   'albany': 'Albany',
+  'champaign-urbana-savoy': 'Champaign-Urbana-Savoy',
   
 }
 
