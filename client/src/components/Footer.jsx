@@ -1,0 +1,12 @@
+import React from 'react';
+import './Footer.css';
+
+const Footer = () => {
+  return (
+    <footer className="footer">
+      <p>Think of our listings like a great tip from a friend—not a contract. Hours, promos, and availability may change, sell out, or vary by location. Call ahead, double-check the link, and have a great time (responsibly, of course). </p>
+      <p>&copy; {new Date().getFullYear()} Happy Hour Spot. All rights reserved.</p>
+    </footer>
+  );
+}
+export default Footer;

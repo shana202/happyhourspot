@@ -6,6 +6,7 @@ import Login from './pages/login.jsx';
 import Register from './pages/register.jsx';
 import Favorites from './pages/Favorites.jsx';
 import Feedback from './pages/Feedback.jsx';
+import Footer from './components/Footer.jsx';
 import './global.css'
 import './App.css'
 import logo from './assets/images/logo.png';
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/login/" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
+        <Footer />
       </AuthProvider>
     </BrowserRouter>
   )

@@ -1,0 +1,28 @@
+/* Footer styles */
+.footer {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 24px 16px;
+  background: #111;
+  color: #eee;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.footer p {
+  max-width: 960px;
+  margin: 0 auto 0.5rem;
+  padding: 0 8px;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.footer p:last-child {
+  margin-bottom: 0;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .footer { padding: 28px 24px; }
+}
