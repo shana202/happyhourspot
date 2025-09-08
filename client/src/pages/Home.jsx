@@ -7,6 +7,7 @@ import headerImg from '../assets/images/header.png'
 const CITIES = [
     { label: 'Boston', slug: 'boston' },
     { label: 'Albany', slug: 'albany' },
+    { label: 'Schenectady', slug: 'schenectady' },
     { label: 'Champaign-Urbana-Savoy', slug: 'champaign-urbana-savoy' },
     { label: 'Pittsburgh', slug: 'pittsburgh' },
   ]
