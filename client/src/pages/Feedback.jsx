@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 
 export default function Feedback() {
@@ -43,22 +43,10 @@ export default function Feedback() {
 
   return (
     <main className="city">
-      <header className="city-header">
-        <h1>Send Feedback</h1>
-  
-        <content
-  className="feedback-page"
-  style={{
-    display: "flex",
-    justifyContent: "center", // horizontal
-
-    textAlign: "center",      // center text inside
-  }}
->
-  Have an update or a new submission? Let us know.
-</content>
-        <Link className="city-back" to="/">← Back to Home</Link>
-      </header>
+      <h1>Send Feedback</h1>
+      <p style={{ maxWidth: 600 }}>
+        Have an update or a new submission? Looking for a city not listed? Let us know.
+      </p>
 
       {result === 'ok' && (
         <div className="city-success" role="status">Thanks! Your feedback was sent.</div>
@@ -111,4 +99,3 @@ export default function Feedback() {
     </main>
   );
 }
-

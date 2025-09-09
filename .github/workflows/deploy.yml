@@ -121,7 +121,7 @@ jobs:
               exit 1
             fi
 
-            echo "[3/3] Status"
+            echo "[4/3] Status"
             docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 
             # If any container is unhealthy, show logs and fail
