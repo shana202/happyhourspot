@@ -29,7 +29,7 @@ export default function Home() {
 Start exploring now and never miss your next great pour or plate.
 </p>
 
-<div className="home-label">Choose a city:</div>
+<div className="home-label">Choose a city:(more coming soon)</div>
       <div className="city-buttons">
         {sortedCities.map(c => (
           <button 
