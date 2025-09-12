@@ -14,9 +14,8 @@ const CITIES = [
 export default function Home() {
   const navigate = useNavigate();
 
-  const handleSelect = (e) => {
-    const slug = e.target.value
-    if (slug) navigate(`/city/${slug}`)
+  const handleSelect = (slug) => {
+    navigate(`/city/${slug}`);
   }
 
   return (
@@ -29,13 +28,18 @@ export default function Home() {
 Start exploring now and never miss your next great pour or plate.
 </p>
 
-      <label htmlFor="city" className="home-label">Select a city</label>
-      <select id="city" className="home-select" onChange={handleSelect} defaultValue="">
-        <option value="" disabled>Choose…</option>
+<div className="home-label">Choose a city:</div>
+      <div className="city-buttons">
         {CITIES.map(c => (
-          <option key={c.slug} value={c.slug}>{c.label}</option>
+          <button 
+            key={c.slug} 
+            className="city-button"
+            onClick={() => handleClick(c.slug)}
+          >
+            {c.label}
+          </button>
         ))}
-      </select>
+      </div>
     </main>
   )
 }
