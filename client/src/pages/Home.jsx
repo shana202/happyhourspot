@@ -17,6 +17,7 @@ export default function Home() {
   const handleSelect = (slug) => {
     navigate(`/city/${slug}`);
   }
+  const sortedCities = [...CITIES].sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <main className="home">
@@ -30,11 +31,11 @@ Start exploring now and never miss your next great pour or plate.
 
 <div className="home-label">Choose a city:</div>
       <div className="city-buttons">
-        {CITIES.map(c => (
+        {sortedCities.map(c => (
           <button 
             key={c.slug} 
             className="city-button"
-            onClick={() => handleClick(c.slug)}
+            onClick={() => handleSelect(c.slug)}
           >
             {c.label}
           </button>

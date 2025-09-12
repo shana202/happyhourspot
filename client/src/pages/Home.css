@@ -60,3 +60,29 @@
   .home { padding: 32px; gap: 20px; }
   .home-content { margin-top: 4px; }
 }
+
+/* City buttons grid */
+.city-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.city-button {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.city-button:hover {
+  background: #f6f6f6;
+  border-color: #bbb;
+}
