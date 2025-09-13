@@ -10,8 +10,11 @@ async function initMaxMind(dbPath) {
     if (!dbPath) return false;
     // Lazy require so the app can run without the dependency when disabled
     // eslint-disable-next-line global-require
+    console.warn('initMaxMind' + dbPath);
+
     maxmind = require('maxmind');
     cityReader = await maxmind.open(dbPath);
+    if (!cityReader) console.warn('MaxMind DB failed to load');
     return true;
   } catch (e) {
     console.warn('[geo] MaxMind disabled:', e.message);
