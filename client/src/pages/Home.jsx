@@ -13,11 +13,27 @@ const CITIES = [
   ]
 export default function Home() {
   const navigate = useNavigate();
+  const [suggested, setSuggested] = React.useState(null); // slug or null
 
   const handleSelect = (slug) => {
     navigate(`/city/${slug}`);
   }
   const sortedCities = [...CITIES].sort((a, b) => a.label.localeCompare(b.label));
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams(window.location.search);
+    const testIp = params.get('ip'); // dev/testing: /?ip=1.2.3.4
+    const url = testIp && import.meta.env.MODE !== 'production'
+      ? `/api/geo/suggest-city?ip=${encodeURIComponent(testIp)}`
+      : '/api/geo/suggest-city';
+
+    fetch(url, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => { if (!cancelled) setSuggested(data?.suggestion || null); })
+      .catch(() => { if (!cancelled) setSuggested(null); });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <main className="home">
@@ -29,6 +45,11 @@ export default function Home() {
 Start exploring now and never miss your next great pour or plate.
 </p>
 
+{suggested && (
+  <div className="home-label">Suggested city: {sortedCities.find(c => c.slug === suggested)?.label || suggested}
+    <button style={{ marginLeft: 8 }} onClick={() => handleSelect(suggested)}>Open</button>
+  </div>
+)}
 <div className="home-label">Choose a city:(more coming soon)</div>
       <div className="city-buttons">
         {sortedCities.map(c => (

@@ -9,6 +9,8 @@ const authRoute = require('./routes/auth');
 const favoritesRouter = require('./routes/favorites');
 const feedbackRouter = require('./routes/feedback');
 const venuesRoute = require('./routes/venues');
+const geoRoute = require('./routes/geo');
+const { initMaxMind } = require('./utils/geo');
 
 const app = express();
 
@@ -29,6 +31,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/venues', venuesRoute);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/feedback', feedbackRouter);
+app.use('/api/geo', geoRoute);
 
 const port = process.env.PORT || 5002;
 const host = process.env.HOST || '0.0.0.0';
@@ -37,6 +40,11 @@ const host = process.env.HOST || '0.0.0.0';
 app.listen(port, host, () => console.log(`API on http://${host}:${port}`));
 
 // Connect to Mongo in the background; routes that use DB will throw until ready
+// Initialize optional MaxMind DB
+initMaxMind(process.env.MAXMIND_DB).then((ok) => {
+  if (ok) console.log('MaxMind City DB loaded');
+});
+
 connect(process.env.MONGODB_URI, process.env.DB_NAME)
   .then(() => console.log('MongoDB connected'))
   .catch((e) => {
