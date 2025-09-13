@@ -22,6 +22,11 @@ async function initMaxMind(dbPath) {
 }
 
 function getClientIp(req) {
+  // Prefer explicit headers from proxy/CDN first
+  const cf = (req.headers['cf-connecting-ip'] || '').toString().trim();
+  if (cf) return cf;
+  const real = (req.headers['x-real-ip'] || '').toString().trim();
+  if (real) return real;
   const xfwd = (req.headers['x-forwarded-for'] || '').toString();
   if (xfwd) return xfwd.split(',')[0].trim();
   return req.ip || req.connection?.remoteAddress || null;

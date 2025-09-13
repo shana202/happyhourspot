@@ -5,8 +5,10 @@ const { lookupCity, lookupCityByIp, mapToSlug } = require('../utils/geo');
 router.get('/suggest-city', async (req, res) => {
   let geo = null;
   const overrideIp = typeof req.query.ip === 'string' ? req.query.ip.trim() : '';
-  // Allow IP override only outside production to help local testing
-  if (overrideIp && process.env.NODE_ENV !== 'production') {
+  const debugKey = typeof req.query.key === 'string' ? req.query.key : '';
+  const allowProdOverride = process.env.GEO_DEBUG_KEY && debugKey === process.env.GEO_DEBUG_KEY;
+  // Allow IP override in dev, or in prod only with a correct debug key
+  if (overrideIp && (process.env.NODE_ENV !== 'production' || allowProdOverride)) {
     geo = lookupCityByIp(overrideIp) || null;
   } else {
     geo = lookupCity(req);
