@@ -27,6 +27,8 @@
     
     # Copy static build
     COPY --from=build /happyhourspot/dist /usr/share/nginx/html
+    # Also expose a stable share image for link previews (uses home header image)
+    COPY --from=build /happyhourspot/src/assets/images/header.png /usr/share/nginx/html/share.png
     
     EXPOSE 80
     STOPSIGNAL SIGQUIT
