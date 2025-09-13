@@ -1,6 +1,6 @@
 # ---- Base build/runtime image ----
     FROM node:20-alpine AS base
-    WORKDIR /app
+    WORKDIR /happyhourspot
     
     # Install curl for healthcheck inside the container
     RUN apk add --no-cache curl
@@ -25,7 +25,7 @@
     ENV NODE_ENV=production
     USER node
     # Copy only node_modules from deps
-    COPY --from=deps /app/node_modules /app/node_modules
+    COPY --from=deps /happyhourspot/node_modules /happyhourspot/node_modules
     
     # Copy app source (for JS). For TS builds, copy compiled /app/dist instead.
     COPY --chown=node:node . .

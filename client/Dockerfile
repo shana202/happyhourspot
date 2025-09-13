@@ -1,6 +1,6 @@
 # ---- Build stage ----
     FROM node:20-alpine AS build
-    WORKDIR /app
+    WORKDIR /happyhourspot
     
     # Avoid root-owned node_modules when running locally with bind mounts
     ENV CI=true
@@ -26,7 +26,7 @@
     COPY nginx.conf /etc/nginx/conf.d/default.conf
     
     # Copy static build
-    COPY --from=build /app/dist /usr/share/nginx/html
+    COPY --from=build /happyhourspot/dist /usr/share/nginx/html
     
     EXPOSE 80
     STOPSIGNAL SIGQUIT
