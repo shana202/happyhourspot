@@ -22,7 +22,7 @@
     
     # ---- Final runtime ----
     FROM base AS runtime
-    ENV NODE_ENV=production
+    ENV NODE_ENV=development
     USER node
     # Copy only node_modules from deps
     COPY --from=deps /happyhourspot/node_modules /happyhourspot/node_modules
