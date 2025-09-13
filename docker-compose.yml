@@ -16,7 +16,7 @@ services:
     volumes:
       # Mount the MaxMind GeoLite2-City database into the container (optional)
       # Download the .mmdb and place it at server/data/GeoLite2-City.mmdb on the host
-      - ./server/data/GeoLite2-City.mmdb:/happyhourspot/data/GeoLite2-City.mmdb:ro
+      - ./server/data/GeoLite2-City.mmdb:/app/data/GeoLite2-City.mmdb:ro
     expose:
       - "5000"
     restart: unless-stopped
