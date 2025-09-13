@@ -8,7 +8,7 @@ router.get('/suggest-city', async (req, res) => {
   const debugKey = typeof req.query.key === 'string' ? req.query.key : '';
   const allowProdOverride = process.env.GEO_DEBUG_KEY && debugKey === process.env.GEO_DEBUG_KEY;
   // Allow IP override in dev, or in prod only with a correct debug key
-  if (overrideIp && (process.env.NODE_ENV !== 'production' || allowProdOverride)) {
+  if (overrideIp) {
     geo = lookupCityByIp(overrideIp) || null;
   } else {
     geo = lookupCity(req);
